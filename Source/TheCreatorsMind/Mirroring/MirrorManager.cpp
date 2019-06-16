@@ -8,11 +8,6 @@
 #include "Engine/TextureRenderTarget2D.h"
 #include "EngineUtils.h"
 
-//TODO: Make sure all components transforms are set to moveable
-//      Make sure all actors have a component that handels events on being shown--if not then add the component with default values
-//      Make sure all actors generate overlap events
-//		Make sure all actors have "owner no see" set to true
-
 // Sets default values
 AMirrorManager::AMirrorManager()
 {
@@ -30,17 +25,9 @@ void AMirrorManager::BeginPlay()
 
 void AMirrorManager::InitializeMirroring()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("InitializeUtilityValues beginning. . ."))
 	InitializeUtilityValues();
-	//UE_LOG(LogTemp, Warning, TEXT("InitializeUtilityValues finished. . ."))
-
-	//UE_LOG(LogTemp, Warning, TEXT("InitializeCollision beginning. . ."))
 	InitializeCollision();
-	//UE_LOG(LogTemp, Warning, TEXT("InitializeCollision finished. . ."))
-
-	//UE_LOG(LogTemp, Warning, TEXT("InitializeVisibility beginning. . ."))
 	InitializeVisibility();
-	//UE_LOG(LogTemp, Warning, TEXT("InitializeVisibility finished. . ."))
 }
 
 void AMirrorManager::InitializeVisibility()
@@ -136,7 +123,7 @@ void AMirrorManager::InitializeUtilityValues()
 					}
 				}
 
-				/*for (int f = 1; f < MIRRORING_MAX_VALUE + 1; f *= 2)
+				for (int f = 1; f < MIRRORING_MAX_VALUE + 1; f *= 2)
 				{
 					TEnumAsByte<MirroringType> nestedCurrent = (MirroringType)f;
 
@@ -153,7 +140,7 @@ void AMirrorManager::InitializeUtilityValues()
 							UE_LOG(LogTemp, Warning, TEXT("Excluded actors for %s room state %d is %d elements long. . ."), *GetName(), h, roomState.ExcludedActors.Num())
 						}
 					}
-				}*/
+				}
 			}
 		}
 	}
@@ -243,7 +230,7 @@ void AMirrorManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	ReadyRendering(DeltaTime);
+	//ReadyRendering(DeltaTime);
 }
 
 void AMirrorManager::OnOverlapBegin(AActor* OverlappedActor, AActor* OtherActor)
@@ -270,19 +257,6 @@ void AMirrorManager::HandleCollisionWith(AMirror* mirror)
 		FVector reflectedLocation = GetReflectedActorLocation(reflectionNormal, mirror->GetActorLocation(), toReflect->GetActorLocation());
 		FRotator reflectedRotation = GetReflectedActorRotation(reflectionNormal, toReflect->GetActorRightVector(), toReflect->GetActorRotation());
 		
-		/*if (toReflect == mirror)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("The original location is (%f, %f, %f)"), toReflect->GetActorLocation().X, toReflect->GetActorLocation().Y, toReflect->GetActorLocation().Z);
-			UE_LOG(LogTemp, Warning, TEXT("The reflected location is (%f, %f, %f)"), reflectedLocation.X, reflectedLocation.Y, reflectedLocation.Z);
-			UE_LOG(LogTemp, Warning, TEXT("The original rotation is (%f, %f, %f)"), toReflect->GetActorRotation().Roll, toReflect->GetActorRotation().Pitch, toReflect->GetActorRotation().Yaw);
-			UE_LOG(LogTemp, Warning, TEXT("The reflected rotation is (%f, %f, %f)"), reflectedRotation.Roll, reflectedRotation.Pitch, reflectedRotation.Yaw);
-		}*/
-
-		/*FTransform toReflectTransform = toReflect->GetActorTransform();
-		toReflectTransform.SetLocation(reflectedLocation);
-		toReflectTransform.Mirror(EAxis::None, EAxis::X);
-		toReflect->SetActorTransform(toReflectTransform);*/
-
 		toReflect->SetActorLocation(reflectedLocation);
 		toReflect->SetActorRotation(reflectedRotation);
 		ReflectActor(toReflect);
@@ -359,7 +333,7 @@ void AMirrorManager::UpdateMirrorsIn(FSearchData& search)
 
 void AMirrorManager::PerformDiagonalSwap(FSearchData& horizontalData, FSearchData& verticalData)
 {
-
+	//not used yet
 }
 
 void AMirrorManager::FindMirrorContainer(FSearchData& search)
@@ -428,39 +402,16 @@ FVector AMirrorManager::GetReflectedActorLocation(const FVector ReflectionNormal
 	return FVector(Pprime.X, Pprime.Y, ActorLocation.Z);
 }
 
-FRotator AMirrorManager::GetReflectedActorRotation(const FVector ReflectionNormal, const FVector ActorNormal, FRotator ActorRotation) const//FQuat ActorRotation)
+FRotator AMirrorManager::GetReflectedActorRotation(const FVector ReflectionNormal, const FVector ActorNormal, FRotator ActorRotation) const
 {
-	/*ActorRotation = ActorRotation.Add(0.f, 180.f, 0.f);
-
-	return ActorRotation;*/
-
-
-
-
 	float x1 = FMath::RadiansToDegrees(FMath::Atan2(ReflectionNormal.Y, ReflectionNormal.X));
 	float x2 = FMath::RadiansToDegrees(FMath::Atan2(ActorNormal.Y, ActorNormal.X));
 
 	float rotation = FMath::RoundToFloat(2 * (x1 - x2));
-	//rotation = (int)rotation % 360 == 0 ? 180.f : rotation; //if testing by uncommenting this--comment the '+ 180' below
 
 	ActorRotation = ActorRotation.Add(0.f, rotation + 180, 0.f);
 
 	return ActorRotation;
-
-
-
-
-
-//	reflectedRotation = GetReflectedActorRotation(reflectionNormal, toReflect->GetActorRightVector(), toReflect->GetActorRotation());
-
-//	int multipleTimes = (int)(toReflect->GetActorRotation().Pitch / 180.f);
-//	float modAngle = FMath::Fmod(toReflect->GetActorRotation().Pitch, 180.f);
-//	//float mult = FMath::IsNegativeFloat(modAngle) ? -1.f : 1.f;
-//	float reflection = 180 * multipleTimes + (180.f - modAngle) - 90.f;
-//	reflectedRotation = toReflect->GetActorRotation().Add(0.f, reflection, 0.f);
-
-//  FVector reflectedScale = GetReflectedActorScale(toReflect->GetActorScale());
-
 }
 
 void AMirrorManager::SetHiddenToPlayer(TArray<AActor*> hidden)
@@ -514,93 +465,20 @@ void AMirrorManager::ReflectActor(AActor* actor)
 
 bool AMirrorManager::AssertValid(const FSearchData& search)
 {
-	/*if (!search.HasRoomSet() || search.RoomSet->Mirrors.Num() <= 0 || search.RoomSet->Mirrors.Num() > 2)
-	{
-		UE_LOG(LogTemp, Fatal, TEXT("A mirror set has too many or too few elements. Please fix."));
-
-		return false;
-	}
-
-	if (search.HasStateSet() && (search.StateSet->Mirrors.Num() <= 0 || search.StateSet->Mirrors.Num() > 2))
-	{
-		UE_LOG(LogTemp, Fatal, TEXT("A mirror set has too many or too few elements. Please fix."));
-
-		return false;
-	}*/
+	//changes caused the old code to be obsolete. need to add this
 
 	return true;
 }
 
 bool AMirrorManager::AssertSwappable(const FSearchData& search1, const FSearchData& search2)
 {
-	/*if (!AssertValid(search1) || !AssertValid(search2))
-	{
-		return false;
-	}
+	//changes caused the old code to be obsolete. need to add this
 
-	if (search1.RoomSet->Mirrors.Num() != search2.RoomSet->Mirrors.Num())
-	{
-		UE_LOG(LogTemp, Fatal, TEXT("A pair of mirror room sets have uneven mirror amounts. Please fix."));
-
-		return false;
-	}
-
-	if (search1.HasStateSet() == search2.HasStateSet() &&
-		(search1.HasStateSet() && search1.StateSet->Mirrors.Num() != search2.StateSet->Mirrors.Num()))
-	{
-		UE_LOG(LogTemp, Fatal, TEXT("A pair of mirror room sets have uneven mirror amounts. Please fix."));
-
-		return false;
-	}
-*/
 	return true;
 }
 
-//TEnumAsByte<MirroringType> AMirrorManager::GetActualValue(TEnumAsByte<MirroringType> mirroringType)
-//{
-//	if ((mirroringType == MirroringType::Horizontal && !Flipped) || (mirroringType == MirroringType::Vertical && Flipped))
-//	{
-//		return MirroringType::Horizontal;
-//	}
-//	else if ((mirroringType == MirroringType::Vertical && !Flipped) || (mirroringType == MirroringType::Horizontal && Flipped))
-//	{
-//		return MirroringType::Vertical;
-//	}
-//	else
-//	{
-//		return MirroringType::Diagonal;
-//	}
-//}
-
-//Projection
-
-//TArray<FMirrorRenderStack> AMirrorManager::GetRendering(const float DeltaTime)
-//{
-//	TArray<FMirrorRenderStack> RenderStack;
-//	TArray<FMirrorProjectionInfo*> BaseMirrors, OtherMirrors;
-//	GetRawRenderingLists(DeltaTime, BaseMirrors, OtherMirrors);
-//
-//	for (auto CurrentProjectionInfo = BaseMirrors.CreateIterator(); CurrentProjectionInfo; ++CurrentProjectionInfo)
-//	{
-//		FMirrorProjectionInfo* CurrentInfo = *CurrentProjectionInfo;
-//		AMirror* CurrentMirror = CurrentInfo->Mirror;
-//		ASceneCapture2D* CurrentSceneCapture = CurrentMirror->GetSceneCapture2DActor();
-//
-//		ProjectOnto(Player, CurrentMirror, CurrentSceneCapture);
-//
-//		FMirrorRenderStack stackBase;
-//		stackBase.CurrentMirror = CurrentInfo;
-//		stackBase.Level = 0;
-//		stackBase.
-//	}
-//
-//	return TArray<FMirrorRenderStack>();
-//}
-
 void AMirrorManager::ReadyRendering(const float DeltaTime)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Readying rendering. . ."));
-
 	UpdateMirrorProjection(); //Move this elsewhere, it's very costly here
 
 	TArray<FMirrorProjectionInfo*> BaseMirrors, OtherMirrors, CurrentLevel, NextLevel;
@@ -615,8 +493,6 @@ void AMirrorManager::ReadyRendering(const float DeltaTime)
 		USceneCaptureComponent2D* CurrentCaptureComponent = CurrentSceneCapture->GetCaptureComponent2D();
 		UPlanarReflectionComponent* CurrentReflectionComponent = CurrentPlanarReflection->GetPlanarReflectionComponent();
 		
-		//Original Code
-		/**/
 		CurrentCaptureComponent->bCaptureEveryFrame = false;
 		CurrentCaptureComponent->bCaptureOnMovement = false;
 
@@ -625,19 +501,11 @@ void AMirrorManager::ReadyRendering(const float DeltaTime)
 		CurrentReflectionComponent->CaptureSortPriority = 1;
 
 		CurrentMirror->UseMirrorMaterial();
-		/**/
-		//End Original Code
-
-		UE_LOG(LogTemp, Warning, TEXT("%s is a base mirror"), *CurrentMirror->GetName());
-
-		//TODO: Make sure to change this project so it uses the player camera and not just the player
-
-		//ProjectOnto(Player, CurrentMirror, CurrentSceneCapture);
 
 		FVector relativePosition = CurrentMirror->GetActorLocation() - Player->GetActorLocation();
-		//relativePosition.Y = 0.0f;
+		
 		relativePosition.Normalize();
-		//UE_LOG(LogTemp, Warning, TEXT("Relative position: %f, %f, %f"), relativePosition.X, relativePosition.Y, relativePosition.Z);
+		
 		ProjectOnto(relativePosition, CurrentMirror->GetActorUpVector(), CurrentSceneCapture);
 
 		NextLevel.Add(CurrentInfo);
@@ -659,8 +527,7 @@ void AMirrorManager::ReadyRendering(const float DeltaTime)
 			USceneCaptureComponent2D* CurrentCaptureComponent = CurrentSceneCapture->GetCaptureComponent2D();
 			UPlanarReflectionComponent* CurrentReflectionComponent = CurrentPlanarReflection->GetPlanarReflectionComponent();
 
-			//Original Code
-			/**/if (!BaseMirrors.Contains(CurrentInfo))
+			if (!BaseMirrors.Contains(CurrentInfo))
 			{
 				CurrentCaptureComponent->bCaptureEveryFrame = true;
 				CurrentCaptureComponent->bCaptureOnMovement = true;
@@ -670,11 +537,7 @@ void AMirrorManager::ReadyRendering(const float DeltaTime)
 
 				CurrentReflectionComponent->bCaptureEveryFrame = false;
 				CurrentReflectionComponent->bCaptureOnMovement = false;
-			}/**/
-			//End Original Code
-
-			UE_LOG(LogTemp, Warning, TEXT("I'm trying"));
-			//UE_LOG(TempLog, Warning, TEXT("I'm trying"));
+			}
 
 			for (auto CurrentlySearching = OtherMirrors.CreateIterator(); CurrentlySearching; ++CurrentlySearching)
 			{
@@ -690,8 +553,6 @@ void AMirrorManager::ReadyRendering(const float DeltaTime)
 					ProjectOnto(CurrentInfo, SearchingInfo);
 					NextLevel.Add(SearchingInfo);
 					
-					//Original Code
-					/**/
 					SearchingCaptureComponent->bCaptureEveryFrame = true;
 					SearchingCaptureComponent->bCaptureOnMovement = true;
 					SearchingCaptureComponent->CaptureSortPriority = sortPriority;
@@ -700,9 +561,6 @@ void AMirrorManager::ReadyRendering(const float DeltaTime)
 
 					SearchingReflectionComponent->bCaptureEveryFrame = false;
 					SearchingReflectionComponent->bCaptureOnMovement = false;
-					/**/
-					//End Original Code
-					UE_LOG(LogTemp, Warning, TEXT("%s is a capture mirror"), *SearchingMirror->GetName());
 				}
 			}
 		}
@@ -732,18 +590,9 @@ void AMirrorManager::ReadyRendering(const float DeltaTime)
 
 void AMirrorManager::GetRawRenderingLists(const float DeltaTime, TArray<FMirrorProjectionInfo*>& BaseMirrors, TArray<FMirrorProjectionInfo*>& OtherMirrors)
 {
-	//APlayerController* Controller = (APlayerController*)Player->Controller;
 	APlayerController* Controller = GetWorld()->GetFirstPlayerController();
-	TArray<FMirrorProjectionInfo*> MirrorsLeft = TArray<FMirrorProjectionInfo*>(MirrorRenderingInfo); /*MirrorRenderingInfo.FilterByPredicate([this, DeltaTime](FMirrorProjectionInfo* info)
-	{ 
-		bool renderedRecently = info->Mirror->WasRecentlyRendered(DeltaTime);
-		FString message = renderedRecently ? TEXT("True") : TEXT("False");
-
-		UE_LOG(LogTemp, Warning, TEXT("Was recently rendered: %s"), *message);
-
-		return renderedRecently;
-	});*/
-
+	TArray<FMirrorProjectionInfo*> MirrorsLeft = TArray<FMirrorProjectionInfo*>(MirrorRenderingInfo);
+	
 	BaseMirrors = MirrorRenderingInfo.FilterByPredicate([this, Controller](FMirrorProjectionInfo* mirrorInfo) { return IsProjectedFromPlayer(Controller, mirrorInfo->Mirror); });
 	MirrorsLeft.RemoveAll([BaseMirrors](FMirrorProjectionInfo* mirrorInfo) { return BaseMirrors.Contains(mirrorInfo); });
 
@@ -762,10 +611,6 @@ void AMirrorManager::UpdateMirrorProjection()
 		
 		FMatrix ProjectionMatrix;
 		BuildProjectionMatrix(CurrentSceneCapture, ProjectionMatrix);
-		//Test Stuff Here
-		//CurrentCaptureComponent->bUseCustomProjectionMatrix = true;
-		//CurrentCaptureComponent->CustomProjectionMatrix = ProjectionMatrix;
-		//End Test Stuff
 
 		int32 screenWidth = CurrentCaptureComponent->TextureTarget->GetSurfaceWidth();
 		int32 screenHeight = CurrentCaptureComponent->TextureTarget->GetSurfaceHeight();
@@ -795,16 +640,12 @@ bool AMirrorManager::IsProjectedFrom(const FMirrorProjectionInfo* Base, const FM
 	AMirror* ProjectingTo = Other->Mirror;
 	FVector ProjectingRightVector = ProjectingTo->GetActorRightVector();
 
-	//FIntRect screenBounds2 = FIntRect(ViewLocation.X - screenWidth / 2, ViewLocation.Y - screenHeight / 2, ViewLocation.X + screenWidth / 2, ViewLocation.Y + screenHeight / 2);
-	//UE_LOG(LogTemp, Warning, TEXT("screen width: %d screen height: %d"), screenWidth, screenHeight);
-
 	FVector2D screenLocation;
 	bool projected = ProjectWorldToScreen(ViewProjectionMatrix, ViewScreen, ProjectingTo->GetActorLocation(), screenLocation, true);
 	int32 screenX = (int32)screenLocation.X;
 	int32 screenY = (int32)screenLocation.Y;
 	int32 screenWidth = ViewScreen.Width();
 	int32 screenHeight = ViewScreen.Height();
-	//UE_LOG(LogTemp, Warning, TEXT("screen x: %d screen y: %d"), screenX, screenY);
 
 	FVector origin, extents;
 	ProjectingTo->GetActorBounds(false, origin, extents);
@@ -812,14 +653,8 @@ bool AMirrorManager::IsProjectedFrom(const FMirrorProjectionInfo* Base, const FM
 	float dotResult = FVector::DotProduct(BaseRightVector, ProjectingRightVector);
 	bool isFacing = dotResult >= 0.0f;
 
-	//FString isFacingMessage = isFacing ? TEXT("true") : TEXT("false");
-	//UE_LOG(LogTemp, Warning, TEXT("Is Facing: %s"), *isFacingMessage)
+	bool isOnScreen = projected && screenX + extents.X >= 0 && screenY + extents.Y >= 0 && screenX - extents.X < screenWidth && screenY - extents.Y < screenHeight;
 
-	bool isOnScreen = projected && screenX + extents.X >= 0 && screenY + extents.Y >= 0 && screenX - extents.X < screenWidth && screenY - extents.Y < screenHeight;// && isFacing;
-
-	//FString onscreen = isOnScreen ? TEXT("true") : TEXT("false");
-	//UE_LOG(LogTemp, Warning, TEXT("Is on screen: %s"), *onscreen);
-	
 	return isOnScreen;
 }
 
@@ -839,27 +674,10 @@ bool AMirrorManager::IsProjectedFromPlayer(const APlayerController* Controller, 
 	FVector origin, extents;
 	Mirror->GetActorBounds(false, origin, extents);
 
-	//float dotResult = FVector::DotProduct(Player->GetActorRightVector(), Mirror->GetActorRightVector());
-	//bool isFacing = dotResult >= 0.0f;
-
-	bool isOnScreen = projected && screenX + extents.X >= 0 && screenY + extents.Y >= 0 && screenX - extents.X < screenWidth && screenY - extents.Y < screenHeight;// && isFacing;
-
-	//FString onscreen = isOnScreen ? TEXT("true") : TEXT("false");
-	//UE_LOG(LogTemp, Warning, TEXT("Is on screen: %s"), *onscreen);
+	bool isOnScreen = projected && screenX + extents.X >= 0 && screenY + extents.Y >= 0 && screenX - extents.X < screenWidth && screenY - extents.Y < screenHeight;
 
 	return isOnScreen;
 }
-
-//void AMirrorManager::ProjectOnto(const FMirrorRenderStack& Base, FMirrorRenderStack& Other)
-//{
-//	AMirror* BaseMirror = Base.CurrentMirror->Mirror;
-//	AMirror* OtherMirror = Other.CurrentMirror->Mirror;
-//	ASceneCapture2D* BaseSceneCapture = BaseMirror->GetSceneCapture2DActor();
-//	ASceneCapture2D* OtherSceneCapture = OtherMirror->GetSceneCapture2DActor();
-//
-//	ProjectOnto(BaseSceneCapture, OtherMirror, OtherSceneCapture);
-//	Other.InVector = BaseSceneCapture->GetActorRightVector();
-//}
 
 void AMirrorManager::ProjectOnto(const FMirrorProjectionInfo* Base, FMirrorProjectionInfo* Other)
 {
@@ -874,31 +692,6 @@ void AMirrorManager::ProjectOnto(const FMirrorProjectionInfo* Base, FMirrorProje
 	ProjectOnto(testnormal/*BaseSceneCapture->GetActorForwardVector()*/, OtherMirror->GetActorUpVector(), OtherSceneCapture);
 }
 
-//void AMirrorManager::ProjectOnto(const AActor* Base, const AActor* LookReflector, AActor* Other)
-//{
-//	/*FVector BaseRight = Base->GetActorRightVector();
-//	FVector ReflectingOff = LookReflector->GetActorForwardVector();
-//	FVector ReflectedNormal = BaseRight.MirrorByVector(ReflectingOff);
-//
-//	FQuat rotator = FQuat::FindBetweenNormals(BaseRight, ReflectedNormal);
-//	FQuat currentRotation = Other->GetActorQuat();
-//	FQuat newRotation = currentRotation * rotator;
-//	Other->SetActorRotation(newRotation);*/
-//
-//	FVector BaseRight = Base->GetActorRightVector();
-//	FVector ReflectingOff = LookReflector->GetActorForwardVector();
-//	FVector ReflectedNormal = BaseRight.MirrorByVector(ReflectingOff);
-//
-//	FQuat rotator = FQuat::FindBetweenNormals(BaseRight, ReflectedNormal);
-//	FQuat currentRotation = Other->GetActorQuat();
-//	FQuat newRotation = currentRotation * rotator;
-//	Other->SetActorRotation(newRotation);
-//
-//
-//	FVector displayVector = newRotation.Euler();
-//	UE_LOG(LogTemp, Warning, TEXT("X: %f Y: %f Z: %f"), displayVector.X, displayVector.Y, displayVector.Z);
-//}
-
 void AMirrorManager::ProjectOnto(const FVector& In, const FVector& LookReflector, AActor* Other)
 {
 	AActor* Parent = Other->GetAttachParentActor();
@@ -909,27 +702,13 @@ void AMirrorManager::ProjectOnto(const FVector& In, const FVector& LookReflector
 	if (!CurrentLookDirection.Equals(ReflectedNormal))
 	{
 		FQuat rotator = FQuat::FindBetweenNormals(CurrentLookDirection, ReflectedNormal);
-		//rotator = Other->GetActorTransform().InverseTransformRotation(rotator);
-		//FVector test = rotator.Euler();
-		//test = FVector(test.Z, test.Y, test.X);
-		//rotator = FQuat::MakeFromEuler(test);
-		//Other->AddActorWorldRotation(rotator);
-		//Other->AddActorLocalRotation(rotator);
-		//rotator = Parent->GetActorTransform().InverseTransformRotation(rotator);
-		//rotator = Other->GetActorTransform().InverseTransformRotation(rotator);
+
 		rotator = FQuat::MakeFromEuler(FVector(0.0f, 0.0f, rotator.Euler().Z));
 		FQuat rotated = Other->ActorToWorld().GetRotation() * rotator;
-		//FQuat rotated = rotator * Other->ActorToWorld().GetRotation();
 		Other->SetActorRotation(rotated);
-
-		//FQuat currentRotation = Other->GetActorQuat();
-		//FQuat newRotation = currentRotation * rotator;
-		//Other->SetActorRotation(newRotation);
 
 		FVector displayVector1 = rotator.Euler();
 		FVector displayVector2 = Parent->GetActorTransform().TransformRotation(rotator).Euler();
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *displayVector1.ToString());
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *displayVector2.ToString());
 	}
 }
 
@@ -939,14 +718,6 @@ void AMirrorManager::BuildProjectionMatrix(const ASceneCapture2D* SceneCapture, 
 	
 	if (CaptureComponent->TextureTarget != nullptr)
 	{
-		//// Only ensure motion blur cache is up to date when doing USceneCaptureComponent2D::CaptureScene(),
-		//// but only when bAlwaysPersistRenderingState == true for backward compatibility.
-		//if (!CaptureComponent->bCaptureEveryFrame && CaptureComponent->bAlwaysPersistRenderingState)
-		//{
-		//	// We assume the world is not paused since the CaptureScene() has manually been called.
-		//	EnsureMotionBlurCacheIsUpToDate(false);
-		//}
-
 		FTransform Transform = CaptureComponent->GetComponentTransform(); //GetComponentToWorld();
 		FVector ViewLocation = Transform.GetTranslation();
 
@@ -980,13 +751,6 @@ void AMirrorManager::BuildProjectionMatrix(const ASceneCapture2D* SceneCapture, 
 		}
 		
 		ViewProjectionMatrix = FTranslationMatrix(-ViewLocation) * ViewRotationMatrix * ProjectionMatrix;
-		//End original code
-
-		//Test code
-		/*BuildProjectionMatrix(CaptureSize, CaptureComponent->ProjectionType, FOV, CaptureComponent->OrthoWidth, ProjectionMatrix);
-		FRotationMatrix ViewRotation(FRotator(90, -180, 0));
-		ViewProjectionMatrix = FTranslationMatrix(-ViewLocation) * ViewRotationMatrix * ProjectionMatrix;*/
-		//End Test code
 	}
 	else
 	{
@@ -1049,29 +813,5 @@ bool AMirrorManager::ProjectWorldToScreen(const FMatrix& ViewProjectionMatrix, c
 {
 	bool bResult = FSceneView::ProjectWorldToScreen(WorldPosition, ViewRect, ViewProjectionMatrix, ScreenPosition);
 
-	/*if (bPlayerViewportRelative)
-	{
-		ScreenPosition -= FVector2D(ProjectionData.GetConstrainedViewRect().Min);
-	}*/
-
-	//bResult = bResult && Player->PostProcessWorldToScreen(WorldPosition, ScreenPosition, bPlayerViewportRelative);
-
 	return bResult;
 }
-
-
-//void BuildReflectionMatrix(const FVector4 Plane)
-//{
-//
-//}
-//
-//FVector4 BuildSpacePlane(const FMatrix& WorldToActorMatrix, const FVector& Position, const FVector& Normal, const float SideSign)
-//{
-//
-//}
-//
-//void BuildObliqueMatrix(FMatrix& Projection, const FVector4& ClipPlane)
-//{
-//
-//}
-
